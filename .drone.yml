@@ -1,0 +1,51 @@
+---
+name: default
+
+kind: pipeline
+type: docker
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build-docker-image-tag
+  when:
+    event:
+    - tag
+  image: r.sync.pw/library/drone-plugins-docker
+  settings:
+    repo: r.sync.pw/project/exrate-test
+    registry: r.sync.pw
+    username:
+      from_secret: registry_username
+    password:
+      from_secret: registry_password
+    dockerfile: Dockerfile
+    cache_from:
+    - r.sync.pw/project/exrate-test:master
+    tags:
+    - ${DRONE_TAG/\//-}
+    - latest
+- name: build-docker-image-branch
+  when:
+    event:
+      exclude:
+        - tag
+  image: r.sync.pw/library/drone-plugins-docker
+  settings:
+    repo: r.sync.pw/project/exrate-test
+    registry: r.sync.pw
+    username:
+      from_secret: registry_username
+    password:
+      from_secret: registry_password
+    dockerfile: Dockerfile
+    cache_from:
+    - r.sync.pw/project/exrate-test:master
+    tags:
+    - ${DRONE_SOURCE_BRANCH/\//-}
+    - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:10}
+
+image_pull_secrets:
+- dockerconfigjson

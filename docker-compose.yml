@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  exrate-test:
+    build: ./
+    restart: always

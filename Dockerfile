@@ -1,0 +1,66 @@
+FROM public.ecr.aws/bitnami/minideb:buster AS build
+
+USER root
+
+RUN apt update && \
+    apt -y install --no-install-recommends \
+    php \
+    php-pear \
+    php-dev \
+    ca-certificates \
+    make
+RUN apt -y install --no-install-recommends libevent-dev
+RUN printf "no\nyes\n/usr\nno\nyes\nno\nyes\n/usr/bin/openssl" | pecl install event
+
+FROM build AS deps
+
+WORKDIR /depsdir
+USER root
+
+RUN apt update && \
+    apt -y install --no-install-recommends \
+    git
+COPY --from=r.sync.pw/library/composer /usr/bin/composer /usr/bin/composer
+COPY data/composer.json .
+RUN composer require \
+	--ignore-platform-reqs \
+    --quiet \
+	--no-ansi \
+	--no-interaction \
+	--no-plugins \
+	--no-progress \
+	--no-scripts \
+	--prefer-dist \
+    --update-no-dev \
+    --optimize-autoloader
+
+FROM public.ecr.aws/bitnami/minideb:buster AS deploy
+
+ARG PHP_VERSION=7.3
+ARG GID=1000
+ARG UID=1000
+
+USER root
+
+RUN apt update && \
+    apt -y install --no-install-recommends \
+    php \
+    php-mysql \
+    php-mbstring
+RUN apt -y install --no-install-recommends libevent-dev
+COPY --from=build /usr/lib/php/20180731/event.so /usr/lib/php/20180731/event.so
+RUN echo "extension=event.so" > /etc/php/${PHP_VERSION}/cli/conf.d/30-event.ini
+
+RUN groupadd --system --gid ${GID} user && \
+    useradd --no-log-init --system --create-home --gid ${GID} --uid ${UID} --shell /bin/bash user
+
+COPY --chown=user:user --from=deps /depsdir/vendor /data/vendor
+COPY --chown=user:user data /data
+
+RUN sed -i "s/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE/g" /etc/php/${PHP_VERSION}/cli/php.ini
+
+USER user
+
+EXPOSE 8080
+
+CMD ["php", "/data/start.php", "start"]
