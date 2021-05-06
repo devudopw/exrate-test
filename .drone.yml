@@ -17,7 +17,8 @@ steps:
 - name: unit tests
   image: php:7
   commands:
-  - cd data && vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml tests/
+  - cd data
+  - vendor/bin/phpunit
 - name: build-docker-image-tag
   when:
     event:
@@ -32,7 +33,7 @@ steps:
       from_secret: registry_password
     dockerfile: Dockerfile.dist
     cache_from:
-    - r.sync.pw/project/exrate-test:master
+    - r.sync.pw/project/exrate-test:latest
     tags:
     - ${DRONE_TAG/\//-}
     - latest
@@ -51,7 +52,7 @@ steps:
       from_secret: registry_password
     dockerfile: Dockerfile
     cache_from:
-    - r.sync.pw/project/exrate-test:master
+    - r.sync.pw/project/exrate-test:latest
     tags:
     - ${DRONE_SOURCE_BRANCH/\//-}
     - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:10}

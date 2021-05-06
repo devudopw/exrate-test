@@ -1,4 +1,8 @@
 {
+  "config": {
+    "preferred-install": "dist"
+  },
+  "prefer-stable": true,
   "require": {
     "php": ">=7.3",
     "workerman/webman-framework": "^1.0",
@@ -6,7 +10,7 @@
     "doctrine/dbal": "^3.0",
     "monolog/monolog": "^2.2",
     "respect/validation": "^2.2",
-    "neomerx/json-api": "*"
+    "neomerx/json-api": "^4.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.0"
@@ -20,7 +24,7 @@
     ]
   },
   "scripts": {
-    "test": "vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml tests/"
-  },
-  "prefer-stable": true
+    "phpunit": "vendor/bin/phpunit",
+    "phpunit-unit": "vendor/bin/phpunit --testsuite=unit"
+  }
 }
