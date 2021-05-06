@@ -1,0 +1,8 @@
+ERROR CODE LIST
+10010:invalid currency code
+10020:invalid rate: invalid amount
+10021:invalid rate: amount must greater then 0
+10022:update to invalid exrate
+10023:update to invalid inverse exrate
+10024:not supported 'from' currency
+10025:not supported 'to' currency
