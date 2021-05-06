@@ -13,7 +13,7 @@ steps:
   image: r.sync.pw/library/composer
   commands:
   - cd data
-  - composer update --ignore-platform-reqs --quiet --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --prefer-dist --optimize-autoloader
+  - composer install --ignore-platform-reqs --quiet --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --prefer-dist --optimize-autoloader
 - name: unit tests
   image: php:7
   commands:
@@ -30,7 +30,7 @@ steps:
       from_secret: registry_username
     password:
       from_secret: registry_password
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.dist
     cache_from:
     - r.sync.pw/project/exrate-test:master
     tags:

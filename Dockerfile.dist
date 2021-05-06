@@ -23,14 +23,16 @@ RUN apt update && \
     git
 COPY --from=r.sync.pw/library/composer /usr/bin/composer /usr/bin/composer
 COPY data/composer.json data/composer.lock ./
-RUN composer update \
+RUN composer install \
 	--ignore-platform-reqs \
+    --quiet \
 	--no-ansi \
 	--no-interaction \
 	--no-plugins \
 	--no-progress \
 	--no-scripts \
 	--prefer-dist \
+    --no-dev \
     --optimize-autoloader
 
 FROM public.ecr.aws/bitnami/minideb:buster AS deploy
