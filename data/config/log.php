@@ -16,6 +16,13 @@ return [
     'default' => [
         'handlers' => [
             [
+                'class' => \Monolog\Handler\StreamHandler::class,
+                'constructor' => [
+                    runtime_path() . '/logs/app.log',
+                    env('LOG_LEVEL', 400),
+                ],
+            ],
+            [
                 'class' => \Monolog\Handler\RotatingFileHandler::class,
                 'constructor' => [
                     runtime_path() . '/logs/app.log',
@@ -26,7 +33,7 @@ return [
                     'class' => \Monolog\Formatter\LineFormatter::class,
                     'constructor' => [ null, 'Y-m-d H:i:s', true],
                 ],
-            ]
+            ],
         ],
     ],
 ];

@@ -9,7 +9,7 @@ platform:
   arch: amd64
 
 steps:
-- name: install
+- name: composer install
   image: r.sync.pw/library/composer
   commands:
   - cd data
