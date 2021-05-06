@@ -22,7 +22,6 @@ class ExchangeratesAPI extends AbstractRatesProvider
         curl_close($ch);
 
         // Decode JSON response:
-        // return json_decode($json, true);
-        return 1.23456789;
+        return json_decode($json, true);
     }
 }

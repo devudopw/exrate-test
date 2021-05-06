@@ -14,11 +14,11 @@ class EXRateController
     public function convertTo(Request $request)
     {
         extract(array_map("htmlspecialchars", $request->get()), EXTR_PREFIX_ALL, 'qs');
-        $ccy_from = filter_var($qs_from, FILTER_SANITIZE_STRING);
-        $ccy_to = filter_var($qs_to, FILTER_SANITIZE_STRING);
-        $amount = filter_var($qs_amount, FILTER_SANITIZE_STRING);
 
         try {
+            $ccy_from = filter_var($qs_from, FILTER_SANITIZE_STRING);
+            $ccy_to = filter_var($qs_to, FILTER_SANITIZE_STRING);
+            $amount = filter_var($qs_amount, FILTER_SANITIZE_STRING);
             $rates_provider = VendorRatesFactory::create($amount);
             $rates_provider->setFrom($ccy_from);
             $converted = $rates_provider->convertTo($ccy_to);
