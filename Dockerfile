@@ -19,10 +19,12 @@ USER root
 
 RUN apt update && \
     apt -y install --no-install-recommends \
+    php-zip unzip \
     git
 COPY --from=r.sync.pw/library/composer /usr/bin/composer /usr/bin/composer
-COPY data/composer.json .
-RUN composer require \
+COPY data/composer.json data/composer.lock ./
+RUN composer install \
+#RUN composer update \
 	--ignore-platform-reqs \
     --quiet \
 	--no-ansi \
@@ -31,7 +33,7 @@ RUN composer require \
 	--no-progress \
 	--no-scripts \
 	--prefer-dist \
-    --update-no-dev \
+    --no-dev \
     --optimize-autoloader
 
 FROM public.ecr.aws/bitnami/minideb:buster AS deploy
@@ -46,10 +48,14 @@ RUN apt update && \
     apt -y install --no-install-recommends \
     php \
     php-mysql \
-    php-mbstring
+    php-bcmath
 RUN apt -y install --no-install-recommends libevent-dev
 COPY --from=build /usr/lib/php/20180731/event.so /usr/lib/php/20180731/event.so
 RUN echo "extension=event.so" > /etc/php/${PHP_VERSION}/cli/conf.d/30-event.ini
+
+RUN apt update && \
+    apt -y install --no-install-recommends \
+    php-dom
 
 RUN groupadd --system --gid ${GID} user && \
     useradd --no-log-init --system --create-home --gid ${GID} --uid ${UID} --shell /bin/bash user

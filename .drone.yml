@@ -9,6 +9,15 @@ platform:
   arch: amd64
 
 steps:
+- name: install
+  image: r.sync.pw/library/composer
+  commands:
+  - cd data
+  - composer update --ignore-platform-reqs --quiet --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --prefer-dist --optimize-autoloader
+- name: unit tests
+  image: php:7
+  commands:
+  - cd data && vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml tests/
 - name: build-docker-image-tag
   when:
     event:
