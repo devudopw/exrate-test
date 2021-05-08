@@ -13,4 +13,8 @@
  */
 
 return [
+    'enable' => true,
+    'middleware' => [
+        support\middleware\StaticFile::class,
+    ],
 ];

@@ -11,6 +11,47 @@ use Neomerx\JsonApi\Schema\Error;
 
 class EXRateController
 {
+    /**
+     * @OA\Get(
+     *     path="/convert-to",
+     *     tags={"convert-to"},
+     *     operationId="convertTo",
+     *     @OA\Parameter(
+     *         name="from",
+     *         in="query",
+     *         description="source currency convert from",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="to",
+     *         in="query",
+     *         description="target currency convert to",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="amount",
+     *         in="query",
+     *         description="amount to convert",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="number",
+     *             format="float"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful conversion",
+     *         @OA\JsonContent(ref="#/components/schemas/Conversion")
+     *         )
+     *     )
+     * )
+     */
     public function convertTo(Request $request)
     {
         extract(array_map("htmlspecialchars", $request->get()), EXTR_PREFIX_ALL, 'qs');

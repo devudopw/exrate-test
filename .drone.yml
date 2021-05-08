@@ -19,6 +19,14 @@ steps:
   commands:
   - cd data
   - vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml.dist
+- name: build openapi yaml
+  image: tico/swagger-php
+  commands:
+  - --output data/openapi/openapi.yml data/
+- name: generate redoc
+  image: broothie/redoc-cli
+  commands:
+  - bundle data/openapi/openapi.yml -o data/public/index.html
 - name: build-docker-image-tag
   when:
     event:
