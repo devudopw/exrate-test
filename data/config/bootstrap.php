@@ -14,11 +14,5 @@
 
 return [
     support\bootstrap\Container::class,
-    // support\bootstrap\Session::class,
-    // support\bootstrap\db\Laravel::class,
-    support\bootstrap\db\Dbal::class,
-    support\bootstrap\db\Heartbeat::class,
-    // support\bootstrap\Redis::class,
-    // support\bootstrap\Log::class,
-    // support\bootstrap\Translation::class,
+    support\bootstrap\Log::class,
 ];

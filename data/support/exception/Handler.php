@@ -30,7 +30,7 @@ class Handler extends ExceptionHandler
 
     public function report(Throwable $exception)
     {
-        parent::report($exception);
+        // parent::report($exception);
         print_r($exception->getMessage());
         print_r($exception->getTraceAsString());
     }

@@ -8,16 +8,16 @@ use Webman\App;
 use Webman\Config;
 use Webman\Route;
 use Webman\Middleware;
-// use Dotenv\Dotenv;
+use Dotenv\Dotenv;
 use support\Request;
-// use support\bootstrap\Log;
+use support\bootstrap\Log;
 use support\bootstrap\Container;
 
-// if (method_exists('Dotenv\Dotenv', 'createUnsafeImmutable')) {
-//     Dotenv::createUnsafeImmutable(base_path())->load();
-// } else {
-//     Dotenv::createMutable(base_path())->load();
-// }
+if (method_exists('Dotenv\Dotenv', 'createUnsafeImmutable')) {
+    Dotenv::createUnsafeImmutable(base_path())->load();
+} else {
+    Dotenv::createMutable(base_path())->load();
+}
 
 Config::load(config_path(), ['route', 'container']);
 $config = config('server');
@@ -71,11 +71,11 @@ $worker->onWorkerStart = function ($worker) {
     foreach (config('autoload.files', []) as $file) {
         include_once $file;
     }
-    // if (method_exists('Dotenv\Dotenv', 'createUnsafeMutable')) {
-    //     Dotenv::createUnsafeMutable(base_path())->load();
-    // } else {
-    //     Dotenv::createMutable(base_path())->load();
-    // }
+    if (method_exists('Dotenv\Dotenv', 'createUnsafeMutable')) {
+        Dotenv::createUnsafeMutable(base_path())->load();
+    } else {
+        Dotenv::createMutable(base_path())->load();
+    }
     Config::reload(config_path(), ['route', 'container']);
     foreach (config('bootstrap', []) as $class_name) {
         /** @var \Webman\Bootstrap $class_name */
@@ -113,13 +113,13 @@ foreach (config('process', []) as $process_name => $config) {
         foreach (config('autoload.files', []) as $file) {
             include_once $file;
         }
-        // Dotenv::createMutable(base_path())->load();
+        Dotenv::createMutable(base_path())->load();
         Config::reload(config_path(), ['route']);
 
         $bootstrap = $config['bootstrap'] ?? config('bootstrap', []);
-        // if (!in_array(support\bootstrap\Log::class, $bootstrap)) {
-        //     $bootstrap[] = support\bootstrap\Log::class;
-        // }
+        if (!in_array(support\bootstrap\Log::class, $bootstrap)) {
+            $bootstrap[] = support\bootstrap\Log::class;
+        }
         foreach ($bootstrap as $class_name) {
             /** @var \Webman\Bootstrap $class_name */
             $class_name::start($worker);

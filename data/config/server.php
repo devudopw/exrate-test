@@ -23,5 +23,5 @@ return [
     'pid_file'             => runtime_path() . '/webman.pid',
     'max_request'          => 1000000,
     'stdout_file'          => runtime_path() . '/logs/stdout.log',
-    'max_package_size'     => 10*1024*1024
+    'max_package_size'     => 10*1024*1024,
 ];

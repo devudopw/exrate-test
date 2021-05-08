@@ -14,9 +14,12 @@
 
 use Webman\Route;
 
-
 Route::any('/hello', function ($request) {
-    return response('OK');
+    return json([
+    	'message' => 'OK',
+    ]);
 });
 
-Route::get('/', 'app\controller\MyController@index');
+Route::get('/exrate/convert-to', [app\Controller\EXRateController::class, 'convertTo']);
+// todo year over year
+// Route::get('/exrate/yoy', [app\controller\EXRateController::class, 'yearOverYear']);

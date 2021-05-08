@@ -12,12 +12,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * 静态文件设置
- */
 return [
-    'enable'     => true, // 是否支持静态文件
-    'middleware' => [     // 静态文件中间件
+    'enable' => true,
+    'middleware' => [
         support\middleware\StaticFile::class,
     ],
 ];

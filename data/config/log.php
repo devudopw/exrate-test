@@ -15,17 +15,25 @@
 return [
     'default' => [
         'handlers' => [
-            // [
-            //     'class' => Monolog\Handler\RotatingFileHandler::class,
-            //     'constructor' => [
-            //         runtime_path() . '/logs/webman.log',
-            //         Monolog\Logger::DEBUG,
-            //     ],
-            //     'formatter' => [
-            //         'class' => Monolog\Formatter\LineFormatter::class,
-            //         'constructor' => [ null, 'Y-m-d H:i:s', true],
-            //     ],
-            // ]
+            [
+                'class' => \Monolog\Handler\StreamHandler::class,
+                'constructor' => [
+                    runtime_path() . '/logs/app.log',
+                    env('LOG_LEVEL', 400),
+                ],
+            ],
+            [
+                'class' => \Monolog\Handler\RotatingFileHandler::class,
+                'constructor' => [
+                    runtime_path() . '/logs/app.log',
+                    env('LOG_ROTATE', 5),
+                    env('LOG_LEVEL', 400),
+                ],
+                'formatter' => [
+                    'class' => \Monolog\Formatter\LineFormatter::class,
+                    'constructor' => [ null, 'Y-m-d H:i:s', true],
+                ],
+            ],
         ],
     ],
 ];

@@ -9,6 +9,30 @@ platform:
   arch: amd64
 
 steps:
+- name: composer install
+  image: r.sync.pw/library/composer
+  commands:
+  - cd data
+  - composer install --ignore-platform-reqs --quiet --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --prefer-dist --optimize-autoloader
+- name: unit tests
+  image: php:7
+  commands:
+  - cd data
+  - vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml.dist
+- name: build openapi yaml
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  - docker run --rm -v $(pwd)/:/mountpoint tico/swagger-php --output /mountpoint/data/openapi/openapi.yml /mountpoint/data/
+- name: build redoc
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  - docker run --rm -v $(pwd)/data:/data broothie/redoc-cli bundle openapi/openapi.yml -o public/index.html
 - name: build-docker-image-tag
   when:
     event:
@@ -21,9 +45,9 @@ steps:
       from_secret: registry_username
     password:
       from_secret: registry_password
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.dist
     cache_from:
-    - r.sync.pw/project/exrate-test:master
+    - r.sync.pw/project/exrate-test:latest
     tags:
     - ${DRONE_TAG/\//-}
     - latest
@@ -42,10 +66,23 @@ steps:
       from_secret: registry_password
     dockerfile: Dockerfile
     cache_from:
-    - r.sync.pw/project/exrate-test:master
+    - r.sync.pw/project/exrate-test:latest
     tags:
     - ${DRONE_SOURCE_BRANCH/\//-}
     - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:10}
 
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
+
 image_pull_secrets:
 - dockerconfigjson
+
