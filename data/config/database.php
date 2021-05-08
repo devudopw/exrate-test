@@ -20,11 +20,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', 'sql1.local'),
+            'host' => env('DB_HOST', 'sqlhost'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'exrate-test'),
-            'username' => env('DB_USERNAME', 'dba'),
-            'password' => env('DB_PASSWORD', 'dba'),
+            'database' => env('DB_DATABASE', 'db'),
+            'username' => env('DB_USERNAME', 'dbuser'),
+            'password' => env('DB_PASSWORD', 'dbpass'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
