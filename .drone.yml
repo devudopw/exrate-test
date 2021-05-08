@@ -20,13 +20,19 @@ steps:
   - cd data
   - vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml.dist
 - name: build openapi yaml
-  image: tico/swagger-php
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
   commands:
-  - --output data/openapi/openapi.yml data/
-- name: generate redoc
-  image: broothie/redoc-cli
+  - docker run --rm -v $(pwd)/:/mountpoint tico/swagger-php --output /mountpoint/data/openapi/openapi.yml /mountpoint/data/
+- name: build redoc
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
   commands:
-  - bundle data/openapi/openapi.yml -o data/public/index.html
+  - docker run --rm -v $(pwd)/data:/data broothie/redoc-cli bundle openapi/openapi.yml -o public/index.html
 - name: build-docker-image-tag
   when:
     event:
@@ -65,5 +71,18 @@ steps:
     - ${DRONE_SOURCE_BRANCH/\//-}
     - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:10}
 
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
+
 image_pull_secrets:
 - dockerconfigjson
+
