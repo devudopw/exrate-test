@@ -25,7 +25,8 @@ steps:
   - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
   - php composer-setup.php
   - php composer.phar global require zircote/swagger-php
-  - ~/.composer/vendor/bin/openapi /data --output /data/openapi/openapi.yml
+  - cd data
+  - ~/.composer/vendor/bin/openapi --output openapi/openapi.yml .
 - name: build openapi doc
   image: node:alpine
   commands:
