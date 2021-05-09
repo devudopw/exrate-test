@@ -9,31 +9,31 @@ platform:
   arch: amd64
 
 steps:
-- name: composer install
+- name: unit tests composer install
   image: r.sync.pw/library/composer
   commands:
   - cd data
   - composer install --ignore-platform-reqs --quiet --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --prefer-dist --optimize-autoloader
-- name: unit tests
-  image: php:7
+- name: unit tests execute
+  image: php:7-alpine
   commands:
   - cd data
   - vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml.dist
 - name: build openapi yaml
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
+  image: php:7-alpine
   commands:
-  - docker run --rm -v $(pwd)/:/mountpoint tico/swagger-php --output /mountpoint/data/openapi/openapi.yml /mountpoint/data/
-- name: build redoc
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
+  - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  - php composer-setup.php
+  - php composer.phar global require zircote/swagger-php
+  - cd data
+  - ~/.composer/vendor/bin/openapi --output openapi/openapi.yml .
+- name: build openapi doc
+  image: node:alpine
   commands:
-  - docker run --rm -v $(pwd)/data:/data broothie/redoc-cli bundle openapi/openapi.yml -o public/index.html
-- name: build-docker-image-tag
+  - npm install -g redoc-cli
+  - cd data
+  - redoc-cli bundle openapi/openapi.yml -o public/index.html
+- name: build docker-image-tag
   when:
     event:
     - tag
@@ -51,7 +51,7 @@ steps:
     tags:
     - ${DRONE_TAG/\//-}
     - latest
-- name: build-docker-image-branch
+- name: build docker-image-branch
   when:
     event:
       exclude:
@@ -70,18 +70,6 @@ steps:
     tags:
     - ${DRONE_SOURCE_BRANCH/\//-}
     - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:10}
-
-services:
-- name: docker
-  image: docker:dind
-  privileged: true
-  volumes:
-  - name: dockersock
-    path: /var/run
-
-volumes:
-- name: dockersock
-  temp: {}
 
 image_pull_secrets:
 - dockerconfigjson
