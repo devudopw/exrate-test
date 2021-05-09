@@ -2,4 +2,5 @@
 /.vscode
 /sql
 docker-compose.yml
-*.dist
+.dist
+.env
