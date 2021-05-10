@@ -15,7 +15,7 @@ class EXRateController
      * @OA\Get(
      *     path="/convert-to",
      *     tags={"convert-to"},
-     *     operationId="convertTo",
+     *     operationId="convert-to",
      *     @OA\Parameter(
      *         name="from",
      *         in="query",

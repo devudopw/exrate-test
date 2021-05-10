@@ -33,6 +33,7 @@ steps:
   - npm install -g redoc-cli
   - cd data
   - redoc-cli bundle openapi/openapi.yml -o public/apidoc.html
+  - redoc-cli bundle openapi/openapi.yml -o public/index.html
 - name: build docker-image-tag
   when:
     event:
