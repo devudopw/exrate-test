@@ -25,12 +25,14 @@ COPY --from=r.sync.pw/library/composer /usr/bin/composer /usr/bin/composer
 COPY data/composer.json data/composer.lock ./
 RUN composer update \
 	--ignore-platform-reqs \
+    --quiet \
 	--no-ansi \
 	--no-interaction \
 	--no-plugins \
 	--no-progress \
 	--no-scripts \
 	--prefer-dist \
+    --no-dev \
     --optimize-autoloader
 
 FROM public.ecr.aws/bitnami/minideb:buster AS deploy
@@ -58,6 +60,7 @@ RUN groupadd --system --gid ${GID} user && \
     useradd --no-log-init --system --create-home --gid ${GID} --uid ${UID} --shell /bin/bash user
 
 COPY --chown=user:user --from=deps /depsdir/vendor /data/vendor
+COPY --chown=user:user --from=deps /depsdir/composer.lock /data/composer.lock
 COPY --chown=user:user data /data
 
 RUN sed -i "s/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE/g" /etc/php/${PHP_VERSION}/cli/php.ini
