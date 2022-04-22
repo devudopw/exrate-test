@@ -5,7 +5,7 @@ SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 DROP TABLE IF EXISTS `fx_rates`;
-CREATE TABLE `rates` (
+CREATE TABLE `fx_rates` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `currency_id` int(11) NOT NULL,
   `bid` decimal(65,10) NOT NULL,
