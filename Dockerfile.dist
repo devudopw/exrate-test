@@ -19,7 +19,7 @@ USER root
 
 RUN apt update && \
     apt -y install --no-install-recommends \
-    php-zip unzip \
+    php-zip php-curl unzip \
     git
 COPY --from=r.sync.pw/library/composer /usr/bin/composer /usr/bin/composer
 COPY data/composer.json data/composer.lock ./
@@ -45,7 +45,7 @@ USER root
 
 RUN apt update && \
     apt -y install --no-install-recommends \
-    php \
+    php=2:7.3+69 \
     php-mysql \
     php-bcmath
 RUN apt -y install --no-install-recommends libevent-dev
@@ -59,8 +59,8 @@ RUN apt update && \
 RUN groupadd --system --gid ${GID} user && \
     useradd --no-log-init --system --create-home --gid ${GID} --uid ${UID} --shell /bin/bash user
 
-COPY --chown=user:user --from=deps /depsdir/vendor /data/vendor
 COPY --chown=user:user data /data
+COPY --chown=user:user --from=deps /depsdir/vendor /data/vendor
 COPY entrypoint.sh /
 RUN chmod 755 /entrypoint.sh
 RUN touch /data/runtime/logs/app.log && \

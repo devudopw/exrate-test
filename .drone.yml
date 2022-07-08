@@ -9,30 +9,37 @@ platform:
   arch: amd64
 
 steps:
-- name: unit tests composer install
+- name: run composer install
   image: r.sync.pw/library/composer
   commands:
   - cd data
   - composer install --ignore-platform-reqs --quiet --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --prefer-dist --optimize-autoloader
-- name: unit tests execute
-  image: php:7-alpine
+
+- name: execute phpunit
+  image: r.sync.pw/dockerhub/library/php:7-alpine
   commands:
   - cd data
   - vendor/bin/phpunit --colors=always --verbose --configuration phpunit.xml.dist
+
 - name: build openapi yaml
-  image: php:7-alpine
+  image: r.sync.pw/dockerhub/library/php:7-alpine
   commands:
-  - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  - php composer-setup.php
-  - php composer.phar global require zircote/swagger-php
+  # - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  # - php composer-setup.php
+  # - php composer.phar global require zircote/swagger-php
+  - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+  - composer global require zircote/swagger-php:^3.0
   - cd data
   - ~/.composer/vendor/bin/openapi --output openapi/openapi.yml .
+
 - name: build openapi doc
-  image: node:alpine
+  image: r.sync.pw/dockerhub/library/node:alpine
   commands:
   - npm install -g redoc-cli
   - cd data
   - redoc-cli bundle openapi/openapi.yml -o public/apidoc.html
+  - redoc-cli bundle openapi/openapi.yml -o public/index.html
+
 - name: build docker-image-tag
   when:
     event:
@@ -51,6 +58,7 @@ steps:
     tags:
     - ${DRONE_TAG/\//-}
     - latest
+
 - name: build docker-image-branch
   when:
     event:
@@ -73,4 +81,3 @@ steps:
 
 image_pull_secrets:
 - dockerconfigjson
-
