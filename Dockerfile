@@ -1,25 +1,32 @@
-FROM public.ecr.aws/bitnami/minideb:buster AS build
+FROM r.sync.pw/library/alpine:3.15 AS build
 
+WORKDIR /builddir
 USER root
 
-RUN apt update && \
-    apt -y install --no-install-recommends \
-    php \
+RUN apk update && \
+    apk --no-cache add \
+    alpine-sdk \
+    libevent-dev \
+    openssl-dev \
+    make \
     php-pear \
-    php-dev \
-    ca-certificates \
-    make
-RUN apt -y install --no-install-recommends libevent-dev
-RUN printf "no\nyes\n/usr\nno\nyes\nno\nyes\n/usr/bin/openssl" | pecl install event
+    php7-dev \
+    php-openssl
+RUN printf "no\nyes\n/usr\nno\nyes\nyes\nno\n/usr/bin/openssl" | pecl install event
 
 FROM build AS deps
 
 WORKDIR /depsdir
 USER root
 
-RUN apt update && \
-    apt -y install --no-install-recommends \
-    php-zip php-curl unzip \
+RUN apk update && \
+    apk --no-cache add \
+    php-zip \
+    php-curl \
+    php-phar \
+    php-mbstring \
+    php-json \
+    unzip \
     git
 COPY --from=r.sync.pw/library/composer /usr/bin/composer /usr/bin/composer
 COPY data/composer.json ./
@@ -35,36 +42,42 @@ RUN composer update \
     #--no-dev \
     --optimize-autoloader
 
-FROM public.ecr.aws/bitnami/minideb:buster AS deploy
+FROM r.sync.pw/library/alpine:3.15 AS deploy
 
-ARG PHP_VERSION=7.3
+ARG PHP_VERSION=7
 ARG GID=1000
 ARG UID=1000
 
 USER root
 
-RUN apt update && \
-    apt -y install --no-install-recommends \
-    php=2:7.3+69 \
-    php-mysql \
+RUN apk update && \
+    apk --no-cache add \
+    libevent \
+    php \
+    php-common \
+    php-sockets \
+    php-mysqli \
     php-bcmath \
-    php-mbstring
-RUN apt -y install --no-install-recommends libevent-dev
-COPY --from=build /usr/lib/php/20180731/event.so /usr/lib/php/20180731/event.so
-RUN echo "extension=event.so" > /etc/php/${PHP_VERSION}/cli/conf.d/30-event.ini
+    php-mbstring \
+    php-dom \
+    php-json \
+    php-phar \
+    php-xmlwriter \
+    php-tokenizer \
+    php-posix \
+    php-pcntl
 
-RUN apt update && \
-    apt -y install --no-install-recommends \
-    php-dom
+COPY --from=build /usr/lib/php${PHP_VERSION}/modules/event.so /usr/lib/php${PHP_VERSION}/modules/event.so
+RUN echo 'extension=event.so' | tee /etc/php${PHP_VERSION}/conf.d/01_event.ini
 
-RUN groupadd --system --gid ${GID} user && \
-    useradd --no-log-init --system --create-home --gid ${GID} --uid ${UID} --shell /bin/bash user
+RUN addgroup --system --gid ${GID} user && \
+    adduser -D -H --system -G $(getent group ${GID} | cut -d: -f1) -u ${UID} -s /bin/sh user
 
 COPY --chown=user:user data /data
 COPY --chown=user:user --from=deps /depsdir/vendor /data/vendor
 COPY --chown=user:user --from=deps /depsdir/composer.lock /data/composer.lock
 
-RUN sed -i "s/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE/g" /etc/php/${PHP_VERSION}/cli/php.ini
+RUN sed -i "s/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE/g" /etc/php${PHP_VERSION}/php.ini
 
 USER user
 
