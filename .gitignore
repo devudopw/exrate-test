@@ -1,6 +1,6 @@
 /.idea
 /.vscode
 /sql
-docker-compose.yml
-.dist
+docker-compose*
+*.dist
 .env
